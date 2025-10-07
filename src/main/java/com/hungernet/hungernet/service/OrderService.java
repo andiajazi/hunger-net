@@ -1,17 +1,23 @@
 package com.hungernet.hungernet.service;
 
 import com.hungernet.hungernet.converter.OrderConverter;
+import com.hungernet.hungernet.converter.OrderItemConverter;
 import com.hungernet.hungernet.dto.OrderDto;
 import com.hungernet.hungernet.dto.OrderDtoRequest;
+import com.hungernet.hungernet.dto.OrderDtoUpdate;
 import com.hungernet.hungernet.entity.*;
+import com.hungernet.hungernet.enums.OrderStatus;
 import com.hungernet.hungernet.exception.ResourceNotFoundException;
 import com.hungernet.hungernet.repository.MenuItemRepository;
 import com.hungernet.hungernet.repository.OrderRepository;
 import com.hungernet.hungernet.repository.RestaurantRepository;
 import com.hungernet.hungernet.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -21,13 +27,19 @@ public class OrderService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
+    private final OrderItemConverter orderItemConverter;
 
-    public OrderService(OrderConverter orderConverter, OrderRepository orderRepository, UserRepository userRepository, RestaurantRepository restaurantRepository, MenuItemRepository menuItemRepository) {
+    public OrderService(OrderConverter orderConverter, OrderRepository orderRepository, UserRepository userRepository, RestaurantRepository restaurantRepository, MenuItemRepository menuItemRepository, OrderItemConverter orderItemConverter) {
         this.orderConverter = orderConverter;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.restaurantRepository = restaurantRepository;
         this.menuItemRepository = menuItemRepository;
+        this.orderItemConverter = orderItemConverter;
+    }
+
+    public List<OrderDto> getAllOrders() {
+        return orderRepository.findAll().stream().map(orderConverter::toDto).collect(Collectors.toList());
     }
 
     public OrderDto getOrderById(Long orderId) {
@@ -36,28 +48,35 @@ public class OrderService {
         return orderConverter.toDto(order);
     }
 
-    public List<OrderDto> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderConverter::toDto).toList();
+    @Transactional
+    public OrderDto createOrder(OrderDtoRequest orderDtoRequest) {
+        Order order = orderConverter.fromRequestDto(orderDtoRequest);
+
+        if (order.getOrderStatus() == null) {
+            order.setOrderStatus(OrderStatus.PENDING);
+        }
+
+        Order savedOrder = orderRepository.save(order);
+
+        return orderConverter.toDto(savedOrder);
     }
 
-    public OrderDto createOrder(OrderDtoRequest orderDtoRequest) {
+    @Transactional
+    public OrderDto updateOrder(Long orderId, OrderDtoUpdate orderDtoUpdate) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find order with id: " + orderId));
 
-        User user = userRepository.findById(orderDtoRequest.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Could not find User with id: " + orderDtoRequest.getUserId()));
+        orderConverter.updateEntity(order, orderDtoUpdate);
 
-        Restaurant restaurant = restaurantRepository.findById(orderDtoRequest.getRestaurantId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Could not find Restaurant with id: " + orderDtoRequest.getRestaurantId()));
+        Order updatedOrder = orderRepository.save(order);
+        return orderConverter.toDto(updatedOrder);
+    }
 
-        List<OrderItem> orderItems = orderDtoRequest.getOrderItems().stream()
-                .map(orderItemDtoRequest -> {
-                    MenuItem menuItem = menuItemRepository.findBy(orderItemDtoRequest.getMenuItemId())
-                })
-
-        Order order = orderConverter.fromRequestDto(orderDtoRequest, restaurant, user,);
-        Order savedOrder = orderRepository.save(order);
-        return orderConverter.toDto(savedOrder);
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("The order with this id: " + orderId + " does not exist."));
+        orderRepository.delete(order);
     }
 
 }

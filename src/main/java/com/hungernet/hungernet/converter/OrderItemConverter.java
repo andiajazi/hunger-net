@@ -3,11 +3,12 @@ package com.hungernet.hungernet.converter;
 import com.hungernet.hungernet.dto.OrderItemDto;
 import com.hungernet.hungernet.dto.OrderItemDtoRequest;
 import com.hungernet.hungernet.entity.MenuItem;
+import com.hungernet.hungernet.entity.Order;
 import com.hungernet.hungernet.entity.OrderItem;
 import com.hungernet.hungernet.exception.ResourceNotFoundException;
 import com.hungernet.hungernet.repository.MenuItemRepository;
-import com.hungernet.hungernet.repository.OrderItemRepository;
 import org.springframework.stereotype.Component;
+
 
 @Component
 public class OrderItemConverter {
@@ -38,18 +39,33 @@ public class OrderItemConverter {
         return orderItemDto;
     }
 
-    public OrderItem fromRequestDto(OrderItemDtoRequest orderItemDtoRequest) {
+    public OrderItem fromRequestDto(OrderItemDtoRequest orderItemDtoRequest, Order order) {
         if (orderItemDtoRequest == null) return null;
 
         OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(orderItemDtoRequest.getQuantity());
-
         MenuItem menuItem = menuItemRepository.findById(orderItemDtoRequest.getMenuItemId())
-                .orElseThrow(() -> new ResourceNotFoundException("Could not find corresponding menu item of this id: " + orderItemDtoRequest.getMenuItemId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Menu Item with id: " + orderItemDtoRequest.getMenuItemId() + " not found!"));
+
         orderItem.setMenuItem(menuItem);
+        orderItem.setQuantity(orderItemDtoRequest.getQuantity());
         orderItem.setPrice(menuItem.getItemPrice());
+        orderItem.setOrder(order);
 
         return orderItem;
+    }
+
+    public void updateEntity(OrderItem entity, OrderItemDtoRequest orderItemDtoRequest) {
+        if (orderItemDtoRequest.getQuantity() != null) {
+            entity.setQuantity(orderItemDtoRequest.getQuantity());
+        }
+        if (orderItemDtoRequest.getMenuItemId() != null) {
+            MenuItem menuItem = menuItemRepository.findById(orderItemDtoRequest.getMenuItemId())
+                    .orElseThrow(() -> new RuntimeException(
+                            "MenuItem not found with id: " + orderItemDtoRequest.getMenuItemId()
+                    ));
+            entity.setMenuItem(menuItem);
+            entity.setPrice(menuItem.getItemPrice());
+        }
     }
 
 }

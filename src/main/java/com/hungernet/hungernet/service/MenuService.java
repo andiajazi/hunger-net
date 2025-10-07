@@ -10,6 +10,7 @@ import com.hungernet.hungernet.exception.DuplicateResourceException;
 import com.hungernet.hungernet.exception.ResourceNotFoundException;
 import com.hungernet.hungernet.repository.MenuRepository;
 import com.hungernet.hungernet.repository.RestaurantRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class MenuService {
         return menuRepository.findAll().stream().map(menuConverter::toDto).toList();
     }
 
+    @Transactional
     public MenuDto createMenu(MenuDtoCreate menuDtoCreate) {
         if (menuRepository.findByRestaurant_RestaurantIdAndMenuType(menuDtoCreate.getRestaurantId(), menuDtoCreate.getMenuType()).isPresent()) {
             throw new DuplicateResourceException("There is already a menu of this type: " + menuDtoCreate.getMenuType() + " belonging to the restaurant with id: " + menuDtoCreate.getRestaurantId());
@@ -50,6 +52,7 @@ public class MenuService {
         return menuConverter.toDto(savedMenu);
     }
 
+    @Transactional
     public MenuDto updateMenu(Long menuId, MenuDtoUpdate menuDtoUpdate) {
 
         Menu menu = menuRepository.findById(menuId)
@@ -60,6 +63,7 @@ public class MenuService {
         return menuConverter.toDto(menuSaved);
     }
 
+    @Transactional
     public void deleteMenuById(Long menuId) {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no existing menu with this id: " + menuId));

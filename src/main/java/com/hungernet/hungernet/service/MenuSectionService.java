@@ -13,6 +13,7 @@ import com.hungernet.hungernet.repository.MenuItemRepository;
 import com.hungernet.hungernet.repository.MenuRepository;
 import com.hungernet.hungernet.repository.MenuSectionRepository;
 import com.hungernet.hungernet.repository.RestaurantRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class MenuSectionService {
         return menuSectionRepository.findAll().stream().map(menuSectionConverter::toDto).toList();
     }
 
+    @Transactional
     public MenuSectionDto createMenuSection(MenuSectionDtoCreate menuSectionDtoCreate) {
 
         if (menuSectionRepository.findMenuSectionByMenuIdAndSectionName(menuSectionDtoCreate.getMenuId(), menuSectionDtoCreate.getSectionName()).isPresent()) {
@@ -61,6 +63,7 @@ public class MenuSectionService {
 
     }
 
+    @Transactional
     public MenuSectionDto updateMenuSection(Long menuSectionId, MenuSectionDtoUpdate menuSectionDtoUpdate) {
         MenuSection menuSection = menuSectionRepository.findById(menuSectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("MenuSection not found with id: " + menuSectionId));
@@ -77,6 +80,7 @@ public class MenuSectionService {
         return menuSectionConverter.toDto(updatedSection);
     }
 
+    @Transactional
     public void deleteSection(Long sectionId) {
         MenuSection section = menuSectionRepository.findById(sectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("MenuSection not found with id: " + sectionId));

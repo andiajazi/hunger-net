@@ -6,6 +6,7 @@ import com.hungernet.hungernet.dto.RestaurantDtoCreate;
 import com.hungernet.hungernet.dto.RestaurantDtoUpdate;
 import com.hungernet.hungernet.entity.Restaurant;
 import com.hungernet.hungernet.repository.RestaurantRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class RestaurantService {
         return restaurantConverter.toDto(restaurant);
     }
 
+    @Transactional
     public RestaurantDto createRestaurant(RestaurantDtoCreate restaurantDtoCreate) {
 
         if (restaurantRepository.findByRestaurantName(restaurantDtoCreate.getRestaurantName()).isPresent()) {
@@ -52,6 +54,7 @@ public class RestaurantService {
 
     }
 
+    @Transactional
     public RestaurantDto updateRestaurantById(Long id, RestaurantDtoUpdate restaurantDtoUpdate) {
         Restaurant restaurant = restaurantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + id));
@@ -62,6 +65,7 @@ public class RestaurantService {
         return restaurantConverter.toDto(updated);
     }
 
+    @Transactional
     public RestaurantDto updateRestaurantByName(String restaurantName, RestaurantDtoUpdate restaurantDtoUpdate) {
         Restaurant restaurant = restaurantRepository.findByRestaurantName(restaurantName)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found with name: " + restaurantName));
@@ -72,12 +76,14 @@ public class RestaurantService {
         return restaurantConverter.toDto(updated);
     }
 
+    @Transactional
     public void deleteRestaurantById(Long restaurantId) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found with Id: " + restaurantId));
         restaurantRepository.delete(restaurant);
     }
 
+    @Transactional
     public void deleteRestaurantByName(String restaurantName) {
         restaurantRepository.deleteByRestaurantName(restaurantName);
     }

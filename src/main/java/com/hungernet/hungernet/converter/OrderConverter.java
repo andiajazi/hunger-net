@@ -61,32 +61,27 @@ public class OrderConverter {
         return orderDto;
     }
 
-    public Order fromRequestDto(OrderDtoRequest orderDtoRequest, Restaurant restaurant, User user, List<OrderItem> orderItems) {
+    public Order fromRequestDto(OrderDtoRequest orderDtoRequest) {
         if (orderDtoRequest == null) return null;
 
         Order order = new Order();
         order.setClientAddress(orderDtoRequest.getClientAddress());
         order.setCreatedAt(LocalDateTime.now());
+        order.setOrderStatus(null);
 
-        if (orderDtoRequest.getUserId() != null) {
-            user = userRepository.findById(orderDtoRequest.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Could not find related User with id: " + orderDtoRequest.getUserId()));
-            order.setUser(user);
-        }
 
-        if (orderDtoRequest.getRestaurantId() != null) {
-            restaurant = restaurantRepository.findById(orderDtoRequest.getRestaurantId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Could not find related restaurant with id: " + orderDtoRequest.getRestaurantId()));
-            order.setRestaurant(restaurant);
-        }
+        User user = userRepository.findById(orderDtoRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find related User with id: " + orderDtoRequest.getUserId()));
+        order.setUser(user);
 
-        if (orderDtoRequest.getOrderItems() != null) {
-            orderItems = orderDtoRequest.getOrderItems()
-                    .stream().map(orderItemConverter::fromRequestDto).toList();
 
-            orderItems.forEach(orderItem -> orderItem.setOrder(order));
-            order.setOrderItems(orderItems);
-        }
+        Restaurant restaurant = restaurantRepository.findById(orderDtoRequest.getRestaurantId())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find related restaurant with id: " + orderDtoRequest.getRestaurantId()));
+        order.setRestaurant(restaurant);
+
+        List<OrderItem> orderItems = orderDtoRequest.getOrderItems().stream().map(orderItemDto -> orderItemConverter.fromRequestDto(orderItemDto, order))
+                .collect(Collectors.toList());
+        order.setOrderItems(orderItems);
 
         return order;
     }
@@ -115,13 +110,10 @@ public class OrderConverter {
         }
 
         if (orderDtoUpdate.getOrderItems() != null) {
+            List<OrderItem> updatedOrderItems = orderDtoUpdate.getOrderItems().stream()
+                    .map(orderItemDto -> orderItemConverter.fromRequestDto(orderItemDto, order)).toList();
             order.getOrderItems().clear();
-
-            List<OrderItem> orderItems = orderDtoUpdate.getOrderItems().stream()
-                    .map(orderItemConverter::fromRequestDto).collect(Collectors.toList());
-
-            orderItems.forEach(orderItem -> orderItem.setOrder(order));
-            order.setOrderItems(orderItems);
+            order.getOrderItems().addAll(updatedOrderItems);
         }
     }
 

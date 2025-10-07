@@ -9,6 +9,7 @@ import com.hungernet.hungernet.entity.User;
 import com.hungernet.hungernet.enums.Role;
 import com.hungernet.hungernet.repository.RestaurantRepository;
 import com.hungernet.hungernet.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class UserService {
         return userConverter.toDto(user);
     }
 
+    @Transactional
     public UserDto createUser(UserDtoCreate userDtoCreate) {
 
         if (userRepository.findByUsername(userDtoCreate.getUsername()).isPresent()) {
@@ -66,6 +68,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public UserDto updateUser(String username, UserDtoUpdate userDtoUpdate) {
 
         User user = userRepository.findByUsername(username)
@@ -90,6 +93,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public void deleteUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Could not find a user with username: " +username));

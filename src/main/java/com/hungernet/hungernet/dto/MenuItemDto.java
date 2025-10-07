@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -16,7 +17,7 @@ public class MenuItemDto {
     private Long menuItemId;
     private String itemName;
     private String itemDescription;
-    private double itemPrice;
+    private BigDecimal itemPrice;
 
     private Long sectionId;
     private List<Long> orderItemIds;

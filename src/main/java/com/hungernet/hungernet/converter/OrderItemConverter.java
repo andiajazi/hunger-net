@@ -20,7 +20,6 @@ public class OrderItemConverter {
     }
 
     public OrderItemDto toDto(OrderItem orderItem) {
-
         if (orderItem == null) return null;
 
         OrderItemDto orderItemDto = new OrderItemDto();

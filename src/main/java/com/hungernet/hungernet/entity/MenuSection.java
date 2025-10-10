@@ -24,7 +24,7 @@ public class MenuSection {
     @ManyToOne
     private Menu menu;
 
-    @OneToMany(mappedBy = "section")
+    @OneToMany(mappedBy = "menuSection")
     private List<MenuItem> menuItems;
 
 }

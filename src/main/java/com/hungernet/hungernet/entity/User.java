@@ -31,7 +31,7 @@ public class User {
     @ManyToOne
     private Restaurant restaurant;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
 }

@@ -25,7 +25,7 @@ public class OrderItemConverter {
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setOrderItemId(orderItem.getOrderItemId());
         orderItemDto.setQuantity(orderItem.getQuantity());
-        orderItemDto.setItemPrice(orderItem.getPrice());
+        orderItemDto.setItemPrice(orderItem.getMenuItem().getItemPrice());
 
         if (orderItem.getOrder() != null) {
             orderItemDto.setOrderId(orderItem.getOrder().getOrderId());
@@ -59,7 +59,7 @@ public class OrderItemConverter {
         }
         if (orderItemDtoRequest.getMenuItemId() != null) {
             MenuItem menuItem = menuItemRepository.findById(orderItemDtoRequest.getMenuItemId())
-                    .orElseThrow(() -> new RuntimeException(
+                    .orElseThrow(() -> new ResourceNotFoundException(
                             "MenuItem not found with id: " + orderItemDtoRequest.getMenuItemId()
                     ));
             entity.setMenuItem(menuItem);

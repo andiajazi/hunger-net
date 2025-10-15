@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MenuSectionService {
@@ -35,49 +36,41 @@ public class MenuSectionService {
         this.menuItemRepository = menuItemRepository;
     }
 
+    public List<MenuSectionDto> getMenuSectionsByMenu(Long menuId) {
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no menu with this id: " + menuId));
+        List<MenuSection> menuSections = menuSectionRepository.findMenuSectionByMenu(menu);
+        return menuSections.stream().map(menuSectionConverter::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public MenuSectionDto addMenuSectionToMenu(Long menuId, MenuSectionDtoCreate menuSectionDtoCreate) {
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(()-> new ResourceNotFoundException("Could not find menu with id: " + menuId));
+
+        MenuSection menuSection  = menuSectionConverter.fromCreateDto(menuSectionDtoCreate,menu);
+        MenuSection savedSection = menuSectionRepository.save(menuSection);
+
+        return menuSectionConverter.toDto(savedSection);
+    }
+
+    @Transactional
+    public MenuSectionDto updateMenuSection(Long menuSectionId, MenuSectionDtoUpdate menuSectionDtoUpdate) {
+        MenuSection existingSection = menuSectionRepository.findById(menuSectionId)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no menu section with this id: " +menuSectionId));
+
+        menuSectionConverter.updateEntity(existingSection, menuSectionDtoUpdate);
+        MenuSection updatedMenuSection = menuSectionRepository.save(existingSection);
+
+        return menuSectionConverter.toDto(updatedMenuSection);
+    }
+
     public MenuSectionDto getMenuSectionById(Long menuSectionId) {
         MenuSection menuSection = menuSectionRepository.findById(menuSectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no menu section with this id: " + menuSectionId));
 
         return menuSectionConverter.toDto(menuSection);
-    }
-
-    public List<MenuSectionDto> getAllMenuSections() {
-        return menuSectionRepository.findAll().stream().map(menuSectionConverter::toDto).toList();
-    }
-
-    @Transactional
-    public MenuSectionDto createMenuSection(MenuSectionDtoCreate menuSectionDtoCreate) {
-
-        if (menuSectionRepository.findMenuSectionByMenuIdAndSectionName(menuSectionDtoCreate.getMenuId(), menuSectionDtoCreate.getSectionName()).isPresent()) {
-            throw new DuplicateResourceException("There is already a menu section with this name: " + menuSectionDtoCreate.getSectionName()+ " belonging to the menu with this id: " + menuSectionDtoCreate.getMenuId());
-        }
-
-        Menu menu = menuRepository.findById(menuSectionDtoCreate.getMenuId())
-                .orElseThrow(() -> new ResourceNotFoundException("There is no menu with this id: " + menuSectionDtoCreate.getMenuId()));
-
-        MenuSection menuSection = menuSectionConverter.fromCreateDto(menuSectionDtoCreate, menu);
-        MenuSection savedMenuSection = menuSectionRepository.save(menuSection);
-
-        return menuSectionConverter.toDto(savedMenuSection);
-
-    }
-
-    @Transactional
-    public MenuSectionDto updateMenuSection(Long menuSectionId, MenuSectionDtoUpdate menuSectionDtoUpdate) {
-        MenuSection menuSection = menuSectionRepository.findById(menuSectionId)
-                .orElseThrow(() -> new ResourceNotFoundException("MenuSection not found with id: " + menuSectionId));
-        Menu menu = menuRepository.findById(menuSectionDtoUpdate.getMenuId())
-                .orElseThrow(() -> new ResourceNotFoundException("There is no menu with this id: " + menuSectionDtoUpdate.getMenuId()));
-
-        List<MenuItem> menuItems = null;
-        if (menuSectionDtoUpdate.getMenuItemIds() != null) {
-            menuItems = menuItemRepository.findAllById(menuSectionDtoUpdate.getMenuItemIds());
-        }
-
-        menuSectionConverter.updateEntity(menuSection, menuSectionDtoUpdate, menu, menuItems);
-        MenuSection updatedSection = menuSectionRepository.save(menuSection);
-        return menuSectionConverter.toDto(updatedSection);
     }
 
     @Transactional

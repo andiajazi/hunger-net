@@ -10,6 +10,7 @@ import com.hungernet.hungernet.exception.ResourceNotFoundException;
 import com.hungernet.hungernet.repository.MenuSectionRepository;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.nio.file.ReadOnlyFileSystemException;
 
 @Component
@@ -43,19 +44,19 @@ public class MenuItemConverter {
 
     }
 
-    public MenuItem fromCreateDto(MenuItemDtoCreate menuItemDtoCreate) {
+    public MenuItem fromCreateDto(MenuItemDtoCreate menuItemDtoCreate, MenuSection menuSection) {
         if (menuItemDtoCreate == null) return null;
 
         MenuItem menuItem = new MenuItem();
         menuItem.setItemName(menuItemDtoCreate.getItemName());
         menuItem.setItemDescription(menuItemDtoCreate.getItemDescription());
-        menuItem.setItemPrice(menuItemDtoCreate.getItemPrice());
-
-        if (menuItemDtoCreate.getSectionId() != null) {
-            MenuSection menuSection = menuSectionRepository.findById(menuItemDtoCreate.getSectionId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Menu section with id: " + menuItemDtoCreate.getSectionId() + " not found"));
-            menuItem.setMenuSection(menuSection);
-        }
+        menuItem.setItemPrice(BigDecimal.valueOf(menuItemDtoCreate.getItemPrice()));
+        menuItem.setMenuSection(menuSection);
+//        if (menuItemDtoCreate.getSectionId() != null) {
+//            MenuSection menuSection = menuSectionRepository.findById(menuItemDtoCreate.getSectionId())
+//                            .orElseThrow(() -> new ResourceNotFoundException("Menu section with id: " + menuItemDtoCreate.getSectionId() + " not found"));
+//            menuItem.setMenuSection(menuSection);
+//        }
         return menuItem;
     }
 
@@ -67,13 +68,13 @@ public class MenuItemConverter {
             menuItem.setItemDescription(menuItemDtoUpdate.getItemDescription());
         }
         if (menuItemDtoUpdate.getItemPrice() != null) {
-            menuItem.setItemPrice(menuItemDtoUpdate.getItemPrice());
+            menuItem.setItemPrice(BigDecimal.valueOf(menuItemDtoUpdate.getItemPrice()));
         }
-        if (menuItemDtoUpdate.getSectionId() != null) {
-            MenuSection menuSection = menuSectionRepository.findById(menuItemDtoUpdate.getSectionId())
-                            .orElseThrow(() -> new ResourceNotFoundException("There is no section with this id: " + menuItemDtoUpdate.getSectionId()));
-            menuItem.setMenuSection(menuSection);
-        }
+//        if (menuItemDtoUpdate.getSectionId() != null) {
+//            MenuSection menuSection = menuSectionRepository.findById(menuItemDtoUpdate.getSectionId())
+//                            .orElseThrow(() -> new ResourceNotFoundException("There is no section with this id: " + menuItemDtoUpdate.getSectionId()));
+//            menuItem.setMenuSection(menuSection);
+//        }
     }
 
 }

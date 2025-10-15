@@ -5,6 +5,7 @@ import com.hungernet.hungernet.entity.Order;
 import com.hungernet.hungernet.entity.OrderItem;
 import com.hungernet.hungernet.entity.Restaurant;
 import com.hungernet.hungernet.entity.User;
+import com.hungernet.hungernet.enums.OrderStatus;
 import com.hungernet.hungernet.exception.ResourceNotFoundException;
 import com.hungernet.hungernet.repository.OrderItemRepository;
 import com.hungernet.hungernet.repository.OrderRepository;
@@ -67,7 +68,7 @@ public class OrderConverter {
         Order order = new Order();
         order.setClientAddress(orderDtoRequest.getClientAddress());
         order.setCreatedAt(LocalDateTime.now());
-        order.setOrderStatus(null);
+        order.setOrderStatus(OrderStatus.PENDING);
 
 
         User user = userRepository.findById(orderDtoRequest.getUserId())

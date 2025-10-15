@@ -14,6 +14,6 @@ public class MenuItemDtoUpdate {
     private String itemName;
     private String itemDescription;
     private Double itemPrice;
-    private Long sectionId;
+//    private Long sectionId;
 
 }

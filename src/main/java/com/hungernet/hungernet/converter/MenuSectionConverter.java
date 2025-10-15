@@ -40,17 +40,9 @@ public class MenuSectionConverter {
         return menuSection;
     }
 
-    public void updateEntity(MenuSection menuSection, MenuSectionDtoUpdate menuSectionDtoUpdate, Menu menu, List<MenuItem> menuItems) {
+    public void updateEntity(MenuSection menuSection, MenuSectionDtoUpdate menuSectionDtoUpdate) {
         if (menuSectionDtoUpdate != null) {
             menuSection.setSectionName(menuSectionDtoUpdate.getSectionName());
-        }
-
-        if (menu != null) {
-            menuSection.setMenu(menu);
-        }
-
-        if (menuItems != null) {
-            menuSection.setMenuItems(menuItems);
         }
     }
 

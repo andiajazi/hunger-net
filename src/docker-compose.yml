@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: hungernet_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hungernet
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_SECRET=MySuperSecretKeyForJWT
+      - JWT_EXPIRATION=86400000
+    networks:
+      - hungernet-network
+
+  db:
+    image: postgres:16
+    container_name: hungernet_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hungernet
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hungernet-network
+
+networks:
+  hungernet-network:
+
+volumes:
+  postgres_data:

@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface MenuSectionRepository extends JpaRepository<MenuSection, Long> {
-    Optional<MenuSection> findMenuSectionByMenuIdAndSectionName(Long menuId, String sectionName);
+    Optional<MenuSection> findMenuSectionByMenuMenuIdAndSectionName(Long menuId, String sectionName);
     List<MenuSection> findMenuSectionByMenu(Menu menu);
 }

@@ -22,6 +22,7 @@ public class MenuSection {
     private String sectionName;
 
     @ManyToOne
+    @JoinColumn(name = "menu_id")
     private Menu menu;
 
     @OneToMany(mappedBy = "menuSection")

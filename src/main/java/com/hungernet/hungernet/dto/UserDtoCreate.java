@@ -24,7 +24,6 @@ public class UserDtoCreate {
     private String password;
     @NotNull @NotBlank
     private Role role;
-    @NotNull @NotBlank
     private Long restaurantId;
 
 }

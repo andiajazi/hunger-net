@@ -5,6 +5,7 @@ import com.hungernet.hungernet.dto.OrderDtoRequest;
 import com.hungernet.hungernet.dto.OrderDtoUpdate;
 import com.hungernet.hungernet.service.OrderService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,21 +20,25 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    @PreAuthorize("hasAnyRole('RESTAURANT_MANAGER', 'ADMIN')")
     @GetMapping
     public List<OrderDto> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-    @GetMapping("id/{orderId}")
+    @PreAuthorize("hasAnyRole('CLIENT', 'RESTAURANT_MANAGER', 'ADMIN')")
+    @GetMapping("/{orderId}")
     public OrderDto getOrderById(@RequestBody @Valid Long orderId) {
         return orderService.getOrderById(orderId);
     }
 
+    @PreAuthorize("hasRole('CLIENT')")
     @PostMapping
     public OrderDto createOrder(@RequestBody @Valid OrderDtoRequest orderDtoRequest) {
         return orderService.createOrder(orderDtoRequest);
     }
 
+    @PreAuthorize("hasRole('RESTAURANT_MANAGER')")
     @PutMapping("/id/{oderId}")
     public OrderDto updateOrder(@PathVariable("orderId") Long orderId, @RequestBody @Valid OrderDtoUpdate orderDtoUpdate) {
         return orderService.updateOrder(orderId, orderDtoUpdate);

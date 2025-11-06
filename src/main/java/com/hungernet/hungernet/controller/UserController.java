@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/home/")
+@RequestMapping("api/v1/admin/users")
 public class UserController {
 
     private final UserService userService;
@@ -21,31 +21,36 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/register")
+    public UserDto registerUser(@RequestBody @Valid UserDtoCreate userDtoCreate) {
+        return userService.createUser(userDtoCreate);
+    }
+
     @PreAuthorize("hasRole('Admin')")
-    @GetMapping("admin/users")
+    @GetMapping
     public List<UserDto> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @PreAuthorize("hasAnyRole('RESTAURANT_MANAGER', 'ADMIN')")
-    @GetMapping("{username}")
+    @GetMapping("/{username}")
     public UserDto getUserByUsername(@PathVariable("username") String username) {
         return userService.getUserByUsername(username);
     }
 
     @PreAuthorize("hasRole('Admin')")
-    @GetMapping("admin/users/{role}")
+    @GetMapping("/role/{role}")
     public List<UserDto> getUsersByRole(@PathVariable("role") Role role) {
         return userService.getUsersByRole(role);
     }
 
     @PreAuthorize("hasRole('Admin')")
-    @PostMapping("admin/users")
+    @PostMapping
     public UserDto addUser(@RequestBody @Valid UserDtoCreate userDtoCreate) {
         return userService.createUser(userDtoCreate);
     }
 
-    @PutMapping("admin/users/{username}")
+    @PutMapping("/{username}")
     public UserDto updateUser(@PathVariable("username") String username,
                            @RequestBody @Valid UserDtoUpdate userDtoUpdate) {
 
@@ -53,7 +58,7 @@ public class UserController {
 
     }
 
-    @DeleteMapping("admin/users/{username}")
+    @DeleteMapping("/{username}")
     public void deleteUser(@PathVariable("username") String username) {
         userService.deleteUserByUsername(username);
     }

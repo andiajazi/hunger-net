@@ -6,6 +6,7 @@ import com.hungernet.hungernet.dto.RestaurantDtoCreate;
 import com.hungernet.hungernet.dto.RestaurantDtoUpdate;
 import com.hungernet.hungernet.service.RestaurantService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,44 +23,51 @@ public class RestaurantController {
         this.restaurantService = restaurantService;
     }
 
+    @PreAuthorize("hasAnyRole('CLIENT', 'RESTAURANT_MANAGER', 'ADMIN')")
     @GetMapping
     public List<RestaurantDto> getAllRestaurants() {
         return restaurantService.getAllRestaurants();
     }
 
-    @GetMapping("/id/{restaurantId}")
+    @GetMapping("/{restaurantId}")
     public RestaurantDto getRestaurantById(@PathVariable("restaurantId") Long restaurantId) {
         return restaurantService.getRestaurantById(restaurantId);
     }
 
-    @GetMapping("/name/{restaurantName}")
+    @PreAuthorize("hasAnyRole('CLIENT', 'RESTAURANT_MANAGER', 'ADMIN')")
+    @GetMapping("/{restaurantName}")
     public RestaurantDto getRestaurantByName(@PathVariable("restaurantName") String restaurantName) {
         return restaurantService.getRestaurantByName(restaurantName);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public RestaurantDto createRestaurant(@RequestBody @Valid RestaurantDtoCreate restaurantDtoCreate) {
         return restaurantService.createRestaurant(restaurantDtoCreate);
     }
 
-    @PutMapping("/id/{restaurantId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{restaurantId}")
     public RestaurantDto updateRestaurantById(@PathVariable("restaurantId") Long restaurantId,
                                               @RequestBody @Valid RestaurantDtoUpdate restaurantDtoUpdate) {
         return restaurantService.updateRestaurantById(restaurantId, restaurantDtoUpdate);
     }
 
-    @PutMapping("/name/{restaurantName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{restaurantName}")
     public RestaurantDto updateRestaurantByName(@PathVariable("restaurantName") String restaurantName,
                                               @RequestBody @Valid RestaurantDtoUpdate restaurantDtoUpdate) {
         return restaurantService.updateRestaurantByName(restaurantName, restaurantDtoUpdate);
     }
 
-    @DeleteMapping("/id/{restaurantId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{restaurantId}")
     public void deleteRestaurant(@PathVariable("restaurantId") Long restaurantId) {
         restaurantService.deleteRestaurantById(restaurantId);
     }
 
-    @DeleteMapping("/name/{restaurantName}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{restaurantName}")
     public void deleteRestaurantByName(@PathVariable("restaurantName") String restaurantName) {
         restaurantService.deleteRestaurantByName(restaurantName);
     }
